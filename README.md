@@ -1046,44 +1046,19 @@ pm2 save
 pm2 startup
 ```
 
-### Docker
+### Docker Live
 
 ```bash
-# Build image (from repository root)
-docker build -t 9router .
-
-# Run container (command used in current setup)
-docker run -d \
-  --name 9router \
-  -p 20128:20128 \
-  --env-file /root/dev/9router/.env \
-  -v 9router-data:/app/data \
-  -v 9router-usage:/root/.9router \
-  9router
+./scripts/generate-live-env.sh
+# Edit BASE_URL and NEXT_PUBLIC_BASE_URL in .env if you change the domain.
+docker compose up -d --build
 ```
 
-Portable command (if you are already at repository root):
+Dashboard: `http://localhost:20128/dashboard`
 
 ```bash
-docker run -d \
-  --name 9router \
-  -p 20128:20128 \
-  --env-file ./.env \
-  -v 9router-data:/app/data \
-  -v 9router-usage:/root/.9router \
-  9router
-```
-
-Container defaults:
-- `PORT=20128`
-- `HOSTNAME=0.0.0.0`
-
-Useful commands:
-
-```bash
-docker logs -f 9router
-docker restart 9router
-docker stop 9router && docker rm 9router
+docker compose logs -f
+docker compose down
 ```
 
 ### Environment Variables

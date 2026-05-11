@@ -1,0 +1,36 @@
+services:
+  9router:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 9router:live
+    container_name: 9router
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-20128}
+      HOSTNAME: 0.0.0.0
+      DATA_DIR: /app/data
+    ports:
+      - "${PORT:-20128}:${PORT:-20128}"
+    volumes:
+      - 9router-data:/app/data
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.9router.rule=Host(`9router.rifuki.dev`)
+      - traefik.http.routers.9router.entrypoints=websecure
+      - traefik.http.routers.9router.tls.certresolver=letsencrypt
+      - traefik.http.services.9router.loadbalancer.server.port=20128
+    networks:
+      - traefik-public
+
+volumes:
+  9router-data:
+
+networks:
+  traefik-public:
+    external: true
