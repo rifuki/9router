@@ -1152,6 +1152,21 @@ docker stop 9router && docker rm 9router
 docker pull decolua/9router:latest   # update to latest
 ```
 
+**Docker Compose live deployment:**
+
+```bash
+./scripts/generate-live-env.sh
+# Edit BASE_URL and NEXT_PUBLIC_BASE_URL in .env if you change the domain.
+docker compose up -d --build
+```
+
+Dashboard: `http://localhost:20128/dashboard`
+
+```bash
+docker compose logs -f
+docker compose down
+```
+
 **Data persistence:** `$HOME/.9router/db/data.sqlite` on host ↔ `/app/data/db/data.sqlite` in container.
 
 ### Environment Variables
