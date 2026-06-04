@@ -1,5 +1,6 @@
 import { getApiKeys } from "@/lib/localDb";
 import { UPDATER_CONFIG } from "@/shared/constants/config";
+import { getTestMaxTokensForModel } from "@/shared/constants/providers";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 
 const CLI_TOKEN_SALT = "9r-cli-auth";
@@ -135,7 +136,7 @@ export async function pingModelByKind(model, kind, baseUrl = `http://127.0.0.1:$
     headers,
     body: JSON.stringify({
       model,
-      max_tokens: 1,
+      max_tokens: getTestMaxTokensForModel(model),
       stream: false,
       messages: [{ role: "user", content: "hi" }],
     }),
