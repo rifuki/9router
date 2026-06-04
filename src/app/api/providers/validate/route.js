@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProviderNodeById } from "@/models";
-import { isOpenAICompatibleProvider, isAnthropicCompatibleProvider, isCustomEmbeddingProvider, AI_PROVIDERS } from "@/shared/constants/providers";
+import { isOpenAICompatibleProvider, isAnthropicCompatibleProvider, isCustomEmbeddingProvider, AI_PROVIDERS, getTestMaxTokens } from "@/shared/constants/providers";
 import { getDefaultModel } from "open-sse/config/providerModels.js";
 import { resolveOllamaLocalHost, resolveXiaomiTokenplanBaseUrl, PROVIDERS } from "open-sse/config/providers.js";
 import { openaiToCommandCodeRequest } from "open-sse/translator/request/openai-to-commandcode.js";
@@ -194,7 +194,7 @@ export async function POST(request) {
           body: JSON.stringify({
             model: getDefaultModel("cloudflare-ai"),
             messages: [{ role: "user", content: "test" }],
-            max_tokens: 1,
+            max_tokens: getTestMaxTokens("cloudflare-ai"),
           }),
         });
         isValid = cfRes.status !== 401 && cfRes.status !== 403 && cfRes.status !== 404;
@@ -223,7 +223,7 @@ export async function POST(request) {
           headers,
           body: JSON.stringify({
             messages: [{ role: "user", content: "test" }],
-            max_tokens: 1,
+            max_tokens: getTestMaxTokens("azure"),
           }),
         });
         isValid = azureRes.status !== 401 && azureRes.status !== 403;
@@ -276,7 +276,7 @@ export async function POST(request) {
             },
             body: JSON.stringify({
               model: "claude-3-haiku-20240307",
-              max_tokens: 1,
+              max_tokens: getTestMaxTokens("anthropic"),
               messages: [{ role: "user", content: "test" }],
             }),
           });
@@ -312,7 +312,7 @@ export async function POST(request) {
             const res = await fetch(cfg.baseUrl, {
               method: "POST",
               headers: { "Authorization": `Bearer ${apiKey}`, "content-type": "application/json" },
-              body: JSON.stringify({ model: testModel, max_tokens: 1, messages: [{ role: "user", content: "test" }] }),
+              body: JSON.stringify({ model: testModel, max_tokens: getTestMaxTokens(provider), messages: [{ role: "user", content: "test" }] }),
             });
             isValid = res.status !== 401 && res.status !== 403;
           } else {
@@ -325,7 +325,7 @@ export async function POST(request) {
                 "content-type": "application/json",
                 ...(cfg.headers || {}),
               },
-              body: JSON.stringify({ model: testModel, max_tokens: 1, messages: [{ role: "user", content: "test" }] }),
+              body: JSON.stringify({ model: testModel, max_tokens: getTestMaxTokens(provider), messages: [{ role: "user", content: "test" }] }),
             });
             // 400 = model resolution error but auth passed (e.g. agentrouter "no available channel")
             isValid = res.status !== 401 && res.status !== 403;
@@ -342,7 +342,7 @@ export async function POST(request) {
             },
             body: JSON.stringify({
               model: getDefaultModel(provider),
-              max_tokens: 1,
+              max_tokens: getTestMaxTokens(provider),
               messages: [{ role: "user", content: "test" }],
             }),
           });
@@ -397,7 +397,7 @@ export async function POST(request) {
             body: JSON.stringify({
               model: getDefaultModel("opencode-go"),
               messages: [{ role: "user", content: "ping" }],
-              max_tokens: 1,
+              max_tokens: getTestMaxTokens("opencode-go"),
               stream: false,
             }),
           });
@@ -410,7 +410,7 @@ export async function POST(request) {
           const model = getDefaultModel("commandcode");
           const payload = openaiToCommandCodeRequest(model, {
             messages: [{ role: "user", content: "ping" }],
-            max_tokens: 1,
+            max_tokens: getTestMaxTokens("commandcode"),
             stream: false,
           }, false);
           const res = await fetch(cfg.baseUrl, {
@@ -608,7 +608,7 @@ export async function POST(request) {
           const chatRes = await fetch(cfg.baseUrl, {
             method: "POST",
             headers,
-            body: JSON.stringify({ model: defaultModel, messages: [{ role: "user", content: "ping" }], max_tokens: 1 }),
+            body: JSON.stringify({ model: defaultModel, messages: [{ role: "user", content: "ping" }], max_tokens: getTestMaxTokens(provider) }),
             signal: AbortSignal.timeout(10000),
           });
           isValid = chatRes.status !== 401 && chatRes.status !== 403;

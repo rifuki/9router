@@ -141,6 +141,21 @@ export const ID_TO_ALIAS = Object.values(AI_PROVIDERS).reduce((acc, p) => {
   return acc;
 }, {});
 
+// Helper: Get test max_tokens for validation
+export function getTestMaxTokens(providerId) {
+  const provider = AI_PROVIDERS[providerId];
+  return provider?.testMaxTokens || 16;
+}
+
+// Helper: Extract provider and get its validation max_tokens
+export function getTestMaxTokensForModel(modelId) {
+  if (!modelId || typeof modelId !== "string") return 16;
+  const parts = modelId.split("/");
+  const prefix = parts.length > 1 ? parts[0] : "";
+  const providerId = prefix ? (ALIAS_TO_ID[prefix] || prefix) : "";
+  return getTestMaxTokens(providerId);
+}
+
 // Helper: Get providers by service kind (e.g. "tts", "embedding", "image")
 // Providers without serviceKinds default to ["llm"]
 export function getProvidersByKind(kind) {

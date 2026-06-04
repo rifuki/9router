@@ -1,5 +1,6 @@
 import { getApiKeys } from "@/lib/localDb";
 import { UPDATER_CONFIG } from "@/shared/constants/config";
+import { getTestMaxTokensForModel } from "@/shared/constants/providers";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 
 const CLI_TOKEN_SALT = "9r-cli-auth";
@@ -135,9 +136,7 @@ export async function pingModelByKind(model, kind, baseUrl = `http://127.0.0.1:$
     headers,
     body: JSON.stringify({
       model,
-      // Claude-on-Copilot returns empty choices at max_tokens:1 (budget is spent
-      // before a content token emits), so a 1-token probe yields a false negative.
-      max_tokens: 16,
+      max_tokens: getTestMaxTokensForModel(model),
       stream: false,
       messages: [{ role: "user", content: "hi" }],
     }),
