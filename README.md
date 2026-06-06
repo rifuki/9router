@@ -17,7 +17,7 @@
   
   [🚀 Quick Start](#-quick-start) • [💡 Features](#-key-features) • [📖 Setup](#-setup-guide) • [🌐 Website](https://9router.com)
 
-  [🇻🇳 Tiếng Việt](./i18n/README.vi.md) • [🇨🇳 中文](./i18n/README.zh-CN.md) • [🇯🇵 日本語](./i18n/README.ja-JP.md)
+  [🇻🇳 Tiếng Việt](./i18n/README.vi.md) • [🇨🇳 中文](./i18n/README.zh-CN.md) • [🇯🇵 日本語](./i18n/README.ja-JP.md) • [🇷🇺 Русский](./i18n/README.ru.md)
 </div>
 
 ---
@@ -1075,6 +1075,21 @@ cd 9router/app
 docker build -t 9router .
 docker run -d --name 9router -p 20128:20128 \
   -v "$HOME/.9router:/app/data" -e DATA_DIR=/app/data 9router
+```
+
+**Docker Compose live deployment:**
+
+```bash
+./scripts/generate-live-env.sh
+# Edit BASE_URL and NEXT_PUBLIC_BASE_URL in .env if you change the domain.
+docker compose up -d --build
+```
+
+Dashboard: `http://localhost:20128/dashboard`
+
+```bash
+docker compose logs -f
+docker compose down
 ```
 
 **Container defaults:**
