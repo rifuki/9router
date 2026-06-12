@@ -1,0 +1,71 @@
+name: Build & Release Standalone
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build Next.js standalone
+        run: bun run build
+
+      - name: Copy static assets
+        run: |
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+
+      - name: Create start script
+        run: |
+          cat > .next/standalone/start.sh << 'EOF'
+          #!/bin/bash
+          export PORT=${PORT:-3000}
+          export NODE_ENV=production
+          node server.js
+          EOF
+          chmod +x .next/standalone/start.sh
+
+      - name: Create tarball
+        run: tar -czf 9router-standalone.tar.gz -C .next/standalone .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 9router-standalone
+          path: 9router-standalone.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: 9router-standalone
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/9router-standalone.tar.gz
+          generate_release_notes: true
+          draft: false
+          prerelease: false

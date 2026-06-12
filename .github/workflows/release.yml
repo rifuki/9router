@@ -15,13 +15,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            target: linux-x64
+            target: node20-linux-x64
             artifact: 9router-linux-x64
           - os: macos-latest
-            target: darwin-x64
+            target: node20-macos-x64
             artifact: 9router-darwin-x64
           - os: macos-latest
-            target: darwin-arm64
+            target: node20-macos-arm64
             artifact: 9router-darwin-arm64
 
     runs-on: ${{ matrix.os }}
@@ -49,35 +49,36 @@ jobs:
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
 
-      - name: Create SEA config
+      - name: Install pkg
+        run: npm install -g @yao-pkg/pkg
+
+      - name: Create package.json for standalone
         run: |
-          cat > sea-config.json << 'EOF'
+          cat > .next/standalone/package.json << 'EOF'
           {
-            "main": ".next/standalone/server.js",
-            "output": "sea-prep.blob",
-            "disableExperimentalSEAWarning": true
+            "name": "9router",
+            "version": "1.0.0",
+            "private": true,
+            "bin": "server.js",
+            "pkg": {
+              "assets": [
+                ".next/**/*",
+                "public/**/*",
+                "node_modules/**/*"
+              ],
+              "targets": ["${{ matrix.target }}"],
+              "outputPath": "dist"
+            }
           }
           EOF
 
-      - name: Generate SEA blob
-        run: node --experimental-sea-config sea-config.json
-
-      - name: Create binary (Unix)
-        if: runner.os != 'Windows'
+      - name: Build binary with pkg
         run: |
-          cp $(command -v node) ${{ matrix.artifact }}
-
-          if [ "${{ runner.os }}" = "macOS" ]; then
-            codesign --remove-signature ${{ matrix.artifact }}
-          fi
-
-          npx postject ${{ matrix.artifact }} NODE_SEA_BLOB sea-prep.blob \
-            --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
-
-          chmod +x ${{ matrix.artifact }}
+          cd .next/standalone
+          pkg . --targets ${{ matrix.target }} --output ../${{ matrix.artifact }}
 
       - name: Create tarball
-        run: tar -czf ${{ matrix.artifact }}.tar.gz ${{ matrix.artifact }}
+        run: tar -czf ${{ matrix.artifact }}.tar.gz -C .next ${{ matrix.artifact }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
