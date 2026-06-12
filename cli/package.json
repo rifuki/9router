@@ -1,7 +1,7 @@
 {
-  "name": "9router",
+  "name": "9router-rifuki",
   "version": "0.4.71",
-  "description": "9Router CLI - Start and manage 9Router server",
+  "description": "9Router CLI - Start and manage 9Router server (Rifuki fork)",
   "bin": {
     "9router": "./cli.js"
   },
