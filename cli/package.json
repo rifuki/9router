@@ -2,6 +2,10 @@
   "name": "9router-rifuki",
   "version": "0.5.12",
   "description": "9Router CLI - Start and manage 9Router server (Rifuki fork)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rifuki/9router.git"
+  },
   "bin": {
     "9router": "./cli.js"
   },
