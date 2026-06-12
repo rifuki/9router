@@ -26,10 +26,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build CLI package
+      - name: Build Next.js standalone
+        run: npm run build
+
+      - name: Copy standalone to CLI
         run: |
-          cd cli
-          npm run build
+          mkdir -p cli/app
+          cp -r .next/standalone/* cli/app/
+          cp -r public cli/app/
+          cp -r .next/static cli/app/.next/
+          cp -r src/mitm cli/app/src/ 2>/dev/null || true
 
       - name: Publish to npm
         run: npm publish --provenance --access public
